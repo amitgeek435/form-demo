@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import Form from "react-bootstrap/Form";
-import { Button, Table } from "react-bootstrap";
+import { Button, InputGroup, Table } from "react-bootstrap";
 import { Pencil, Trash2 } from "react-bootstrap-icons";
-// import Showlist from "./Showlist";
 
 const FormDemo = () => {
   const [count, setCount] = useState(0);
   const [show, setShow] = useState(false);
   const [editInd, setEditInd] = useState();
+  const [searchVal, setSearch] = useState([]);
   const [image, setImage] = useState();
   const [fvalue, setfValue] = useState({
     fname: "",
@@ -30,7 +30,6 @@ const FormDemo = () => {
     e.preventDefault();
     if (show) {
       console.log(e.target.files);
-      // let updateImg = URL.createObjectURL(e.target.uimage.files);
       if (e.target.files === undefined) {
         var updateImg = image;
       } else {
@@ -96,6 +95,15 @@ const FormDemo = () => {
     });
     setImage(uimage);
   };
+  const inputSearchEvent = (e) => {
+    const keyword = e.target.value.toLowerCase();
+    if (keyword !== null) {
+      const filteredData = allData.filter((item) => {
+        return Object.values(item).join("").toLowerCase().includes(keyword);
+      });
+      setSearch(filteredData);
+    }
+  };
   return (
     <>
       <div className="container">
@@ -157,6 +165,19 @@ const FormDemo = () => {
         <hr className="bg-danger pb-1" />
         <h2 className="text-center text-secondary">User List...</h2>
         <hr className="bg-danger pb-1" />
+        <div className="search-input">
+          <InputGroup className="mb-3">
+            <InputGroup.Text id="inputGroup-sizing-default">
+              Search
+            </InputGroup.Text>
+            <Form.Control
+              type="text"
+              aria-label="Default"
+              aria-describedby="inputGroup-sizing-default"
+              onChange={inputSearchEvent}
+            />
+          </InputGroup>
+        </div>
         <Table striped bordered hover>
           <thead>
             <tr>
@@ -171,10 +192,48 @@ const FormDemo = () => {
           <tbody>
             {allData.length === 0 ? (
               <tr className="h4 text-center">
-                <td colSpan="5" className="text-danger">
+                <td colSpan="6" className="text-danger">
                   No User Records Found Yet...
                 </td>
               </tr>
+            ) : searchVal.length !== 0 ? (
+              searchVal?.map((val, ind) => {
+                const { fname, email, pass, uimage } = val;
+                return (
+                  <tr key={ind + 1}>
+                    <td>{ind + 1}</td>
+                    <td>
+                      {uimage ? (
+                        <img
+                          src={uimage}
+                          alt="userprofile"
+                          width={150}
+                          height={150}
+                        />
+                      ) : null}
+                    </td>
+                    <td>{fname}</td>
+                    <td>{email}</td>
+                    <td>{pass}</td>
+                    <td>
+                      <Button
+                        variant="info"
+                        className="mx-3 edit"
+                        onClick={() => handleEdit(ind)}
+                      >
+                        <Pencil />
+                      </Button>
+                      <Button
+                        variant="danger"
+                        className="delete"
+                        onClick={() => handleDelete(ind)}
+                      >
+                        <Trash2 />
+                      </Button>
+                    </td>
+                  </tr>
+                );
+              })
             ) : (
               allData?.map((val, ind) => {
                 const { fname, email, pass, uimage } = val;
